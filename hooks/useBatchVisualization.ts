@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Grid, GridNode, AlgorithmType } from "@/types";
 import { ALGORITHMS, runAlgorithm } from "@/lib/algorithms";
 import {
   generateRandomPattern,
   cloneGridPattern,
   resetVisualization,
+  createEmptyGrid,
 } from "@/lib/gridUtils";
 
 // Smaller grid for batch visualization
@@ -34,39 +35,67 @@ interface AlgorithmState {
 interface UseBatchVisualizationReturn {
   algorithmStates: AlgorithmState[];
   isRunning: boolean;
+  isInitialized: boolean;
   generateNewPattern: () => void;
   visualizeAll: () => void;
   reset: () => void;
 }
 
+// Create empty initial states (no randomness - safe for SSR)
+function createEmptyStates(): AlgorithmState[] {
+  const emptyGrid = createEmptyGrid(GRID_ROWS, GRID_COLS);
+
+  return ALGORITHMS.map((algo) => ({
+    id: algo.id,
+    name: algo.name,
+    grid: cloneGridPattern(emptyGrid),
+    visitedNodes: [],
+    shortestPath: [],
+    currentVisitedIndex: 0,
+    currentPathIndex: 0,
+    phase: "idle" as const,
+    visitedCount: 0,
+    pathLength: null,
+  }));
+}
+
 export function useBatchVisualization(): UseBatchVisualizationReturn {
-  const [algorithmStates, setAlgorithmStates] = useState<AlgorithmState[]>(() =>
-    initializeStates()
-  );
+  // Start with empty grids (SSR-safe)
+  const [algorithmStates, setAlgorithmStates] =
+    useState<AlgorithmState[]>(createEmptyStates);
   const [isRunning, setIsRunning] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const animationRef = useRef<NodeJS.Timeout | null>(null);
-  const statesRef = useRef<AlgorithmState[]>(algorithmStates);
 
-  // Keep ref in sync
-  statesRef.current = algorithmStates;
+  // Generate random pattern only on client-side after mount
+  useEffect(() => {
+    const { grid, startPos, endPos } = generateRandomPattern(
+      GRID_ROWS,
+      GRID_COLS,
+      WALL_DENSITY
+    );
 
-  function initializeStates(): AlgorithmState[] {
-    const { grid } = generateRandomPattern(GRID_ROWS, GRID_COLS, WALL_DENSITY);
+    console.log("Generated pattern - Start:", startPos, "End:", endPos);
+    console.log("Start node state:", grid[startPos.row][startPos.col].state);
+    console.log("End node state:", grid[endPos.row][endPos.col].state);
 
-    return ALGORITHMS.map((algo) => ({
-      id: algo.id,
-      name: algo.name,
-      grid: cloneGridPattern(grid),
-      visitedNodes: [],
-      shortestPath: [],
-      currentVisitedIndex: 0,
-      currentPathIndex: 0,
-      phase: "idle" as const,
-      visitedCount: 0,
-      pathLength: null,
-    }));
-  }
+    setAlgorithmStates(
+      ALGORITHMS.map((algo) => ({
+        id: algo.id,
+        name: algo.name,
+        grid: cloneGridPattern(grid),
+        visitedNodes: [],
+        shortestPath: [],
+        currentVisitedIndex: 0,
+        currentPathIndex: 0,
+        phase: "idle" as const,
+        visitedCount: 0,
+        pathLength: null,
+      }))
+    );
+    setIsInitialized(true);
+  }, []);
 
   const generateNewPattern = useCallback(() => {
     if (isRunning) return;
@@ -112,10 +141,10 @@ export function useBatchVisualization(): UseBatchVisualizationReturn {
   }, []);
 
   const runAnimationStep = useCallback(() => {
-    let allDone = true;
-    let anyVisiting = false;
-
     setAlgorithmStates((prev) => {
+      let allDone = true;
+      let anyVisiting = false;
+
       const newStates = prev.map((state) => {
         if (state.phase === "done") return state;
 
@@ -128,7 +157,9 @@ export function useBatchVisualization(): UseBatchVisualizationReturn {
             const newGrid = [...state.grid];
             newGrid[node.row] = [...newGrid[node.row]];
 
-            if (node.state !== "start" && node.state !== "end") {
+            // Check the display grid's state, not the algorithm node's state
+            const displayNodeState = state.grid[node.row][node.col].state;
+            if (displayNodeState !== "start" && displayNodeState !== "end") {
               newGrid[node.row][node.col] = {
                 ...newGrid[node.row][node.col],
                 state: "visited",
@@ -151,7 +182,9 @@ export function useBatchVisualization(): UseBatchVisualizationReturn {
             const newGrid = [...state.grid];
             newGrid[node.row] = [...newGrid[node.row]];
 
-            if (node.state !== "start" && node.state !== "end") {
+            // Check the display grid's state, not the algorithm node's state
+            const displayNodeState = state.grid[node.row][node.col].state;
+            if (displayNodeState !== "start" && displayNodeState !== "end") {
               newGrid[node.row][node.col] = {
                 ...newGrid[node.row][node.col],
                 state: "path",
@@ -179,16 +212,16 @@ export function useBatchVisualization(): UseBatchVisualizationReturn {
         return state;
       });
 
+      // Schedule next frame (inside the callback so we have correct values)
+      if (!allDone) {
+        const speed = anyVisiting ? ANIMATION_SPEED : PATH_ANIMATION_SPEED;
+        animationRef.current = setTimeout(runAnimationStep, speed);
+      } else {
+        setIsRunning(false);
+      }
+
       return newStates;
     });
-
-    // Schedule next frame
-    if (!allDone) {
-      const speed = anyVisiting ? ANIMATION_SPEED : PATH_ANIMATION_SPEED;
-      animationRef.current = setTimeout(runAnimationStep, speed);
-    } else {
-      setIsRunning(false);
-    }
   }, []);
 
   const visualizeAll = useCallback(() => {
@@ -199,28 +232,60 @@ export function useBatchVisualization(): UseBatchVisualizationReturn {
       const baseGrid = prev[0].grid;
 
       // Find start and end positions
-      let startPos = { row: 0, col: 0 };
-      let endPos = { row: 0, col: 0 };
+      let startPos: { row: number; col: number } | null = null;
+      let endPos: { row: number; col: number } | null = null;
 
+      // Debug: count all states
+      const stateCounts: Record<string, number> = {};
       for (let row = 0; row < baseGrid.length; row++) {
         for (let col = 0; col < baseGrid[0].length; col++) {
-          if (baseGrid[row][col].state === "start") {
+          const state = baseGrid[row][col].state;
+          stateCounts[state] = (stateCounts[state] || 0) + 1;
+          if (state === "start") {
             startPos = { row, col };
-          } else if (baseGrid[row][col].state === "end") {
+          } else if (state === "end") {
             endPos = { row, col };
           }
         }
       }
 
-      return prev.map((state) => {
-        // Reset the grid
-        const freshGrid = resetVisualization(state.grid);
-        const gridClone = cloneGridPattern(freshGrid);
+      console.log("Grid state counts:", stateCounts);
+      console.log("Start position:", startPos);
+      console.log("End position:", endPos);
 
-        // Run the algorithm
-        const start = gridClone[startPos.row][startPos.col];
-        const end = gridClone[endPos.row][endPos.col];
+      // If no start or end found, return unchanged
+      if (!startPos || !endPos) {
+        console.error("No start or end position found in grid");
+        return prev;
+      }
+
+      const finalStartPos = startPos;
+      const finalEndPos = endPos;
+
+      return prev.map((state, index) => {
+        // Create a fresh clone for algorithm execution
+        const gridClone = cloneGridPattern(state.grid);
+
+        // Verify the cloned grid has correct start/end states
+        const start = gridClone[finalStartPos.row][finalStartPos.col];
+        const end = gridClone[finalEndPos.row][finalEndPos.col];
+
+        // Ensure start and end have correct states (in case they were overwritten by walls)
+        start.state = "start";
+        end.state = "end";
+
+        console.log(
+          `[${state.id}] Running algorithm, start: (${finalStartPos.row},${finalStartPos.col}), end: (${finalEndPos.row},${finalEndPos.col})`
+        );
+
         const result = runAlgorithm(state.id, gridClone, start, end);
+
+        console.log(
+          `[${state.id}] Result: ${result.visitedNodesInOrder.length} visited, ${result.shortestPath.length} path`
+        );
+
+        // Reset the display grid (keep walls, start, end)
+        const freshGrid = resetVisualization(state.grid);
 
         return {
           ...state,
@@ -247,6 +312,7 @@ export function useBatchVisualization(): UseBatchVisualizationReturn {
   return {
     algorithmStates,
     isRunning,
+    isInitialized,
     generateNewPattern,
     visualizeAll,
     reset,

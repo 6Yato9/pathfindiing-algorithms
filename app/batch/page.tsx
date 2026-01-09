@@ -10,6 +10,7 @@ export default function BatchVisualizerPage() {
   const {
     algorithmStates,
     isRunning,
+    isInitialized,
     generateNewPattern,
     visualizeAll,
     reset,
@@ -129,18 +130,27 @@ export default function BatchVisualizerPage() {
           </div>
 
           {/* Grid of Mini Visualizers */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
-            {algorithmStates.map((state) => (
-              <MiniGrid
-                key={state.id}
-                grid={state.grid}
-                algorithmName={state.name}
-                isComplete={state.phase === "done"}
-                pathLength={state.pathLength}
-                visitedCount={state.visitedCount}
-              />
-            ))}
-          </div>
+          {!isInitialized ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-slate-600">Loading grids...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
+              {algorithmStates.map((state) => (
+                <MiniGrid
+                  key={state.id}
+                  grid={state.grid}
+                  algorithmName={state.name}
+                  isComplete={state.phase === "done"}
+                  pathLength={state.pathLength}
+                  visitedCount={state.visitedCount}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Legend */}
           <div className="mt-8 flex flex-wrap gap-4 justify-center">
