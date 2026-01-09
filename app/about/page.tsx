@@ -172,17 +172,6 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="border-l-4 border-indigo-500 pl-4">
-                <h3 className="text-lg font-semibold text-slate-800">
-                  Jump Point Search (JPS)
-                </h3>
-                <p className="text-slate-600 mt-1">
-                  An optimization of A* for uniform-cost grids that dramatically
-                  reduces the number of nodes explored by &quot;jumping&quot;
-                  over intermediate nodes. Very fast on open grids.
-                </p>
-              </div>
-
               <div className="border-l-4 border-teal-500 pl-4">
                 <h3 className="text-lg font-semibold text-slate-800">Theta*</h3>
                 <p className="text-slate-600 mt-1">
@@ -200,6 +189,39 @@ export default function AboutPage() {
                   A versatile shortest path algorithm that can handle negative
                   edge weights (unlike Dijkstra). Slower but useful for graphs
                   with varying edge costs.
+                </p>
+              </div>
+
+              <div className="border-l-4 border-indigo-500 pl-4">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  IDA* (Iterative Deepening A*)
+                </h3>
+                <p className="text-slate-600 mt-1">
+                  Combines the space efficiency of depth-first search with the
+                  optimality of A*. Uses iterative deepening with a heuristic
+                  threshold that increases each iteration.
+                </p>
+              </div>
+
+              <div className="border-l-4 border-lime-500 pl-4">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  Best-First Search
+                </h3>
+                <p className="text-slate-600 mt-1">
+                  A pure heuristic search that always expands the most promising
+                  node based on estimated distance to goal. Fast but may not
+                  find the shortest path.
+                </p>
+              </div>
+
+              <div className="border-l-4 border-sky-500 pl-4">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  Flood Fill
+                </h3>
+                <p className="text-slate-600 mt-1">
+                  A wavefront expansion algorithm that floods outward from the
+                  start in all directions simultaneously, like water filling a
+                  container. Guarantees shortest path.
                 </p>
               </div>
             </div>

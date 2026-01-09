@@ -116,12 +116,16 @@ export function runAlgorithm(
       return bidirectional(grid, startNode, endNode);
     case "swarm":
       return swarm(grid, startNode, endNode);
-    case "jps":
-      return jps(grid, startNode, endNode);
     case "thetastar":
       return thetaStar(grid, startNode, endNode);
     case "bellmanford":
       return bellmanFord(grid, startNode, endNode);
+    case "idastar":
+      return idaStar(grid, startNode, endNode);
+    case "bestfirst":
+      return bestFirst(grid, startNode, endNode);
+    case "floodfill":
+      return floodFill(grid, startNode, endNode);
     default:
       throw new Error(`Unknown algorithm: ${algorithm}`);
   }
@@ -135,7 +139,9 @@ export {
   greedy,
   bidirectional,
   swarm,
-  jps,
   thetaStar,
   bellmanFord,
+  idaStar,
+  bestFirst,
+  floodFill,
 };
