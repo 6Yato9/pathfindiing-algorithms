@@ -8,9 +8,11 @@ interface HeaderProps {
   selectedAlgorithm: AlgorithmType;
   onAlgorithmChange: (algorithm: AlgorithmType) => void;
   onVisualize: () => void;
+  onTogglePause: () => void;
   onClearGrid: () => void;
   onClearWalls: () => void;
   isRunning: boolean;
+  isPaused: boolean;
   hasStartAndEnd: boolean;
 }
 
@@ -21,9 +23,11 @@ export function Header({
   selectedAlgorithm,
   onAlgorithmChange,
   onVisualize,
+  onTogglePause,
   onClearGrid,
   onClearWalls,
   isRunning,
+  isPaused,
   hasStartAndEnd,
 }: HeaderProps) {
   return (
@@ -97,6 +101,39 @@ export function Header({
                          disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isRunning ? "Running..." : "Visualize"}
+            </button>
+
+            {/* Play/Pause Button */}
+            <button
+              onClick={onTogglePause}
+              disabled={!isRunning}
+              className="px-4 py-2 text-sm bg-amber-500 text-white font-medium rounded-lg
+                         hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+                         disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
+            >
+              {isPaused ? (
+                <>
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  Resume
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                  </svg>
+                  Pause
+                </>
+              )}
             </button>
 
             <button

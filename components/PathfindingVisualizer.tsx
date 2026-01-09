@@ -13,6 +13,7 @@ export function PathfindingVisualizer() {
     grid,
     selectedAlgorithm,
     isRunning,
+    isPaused,
     startNode,
     endNode,
     setSelectedAlgorithm,
@@ -20,6 +21,7 @@ export function PathfindingVisualizer() {
     handleMouseEnter,
     handleMouseUp,
     visualize,
+    togglePause,
     clearGrid,
     clearWalls,
   } = usePathfinding();
@@ -36,9 +38,11 @@ export function PathfindingVisualizer() {
         selectedAlgorithm={selectedAlgorithm}
         onAlgorithmChange={setSelectedAlgorithm}
         onVisualize={visualize}
+        onTogglePause={togglePause}
         onClearGrid={clearGrid}
         onClearWalls={clearWalls}
         isRunning={isRunning}
+        isPaused={isPaused}
         hasStartAndEnd={hasStartAndEnd}
       />
 

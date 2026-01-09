@@ -22,6 +22,7 @@ interface UsePathfindingReturn {
   grid: Grid;
   selectedAlgorithm: AlgorithmType;
   isRunning: boolean;
+  isPaused: boolean;
   startNode: { row: number; col: number } | null;
   endNode: { row: number; col: number } | null;
   setSelectedAlgorithm: (algorithm: AlgorithmType) => void;
@@ -29,8 +30,18 @@ interface UsePathfindingReturn {
   handleMouseEnter: (row: number, col: number) => void;
   handleMouseUp: () => void;
   visualize: () => void;
+  togglePause: () => void;
   clearGrid: () => void;
   clearWalls: () => void;
+}
+
+// Animation state stored in ref to persist across renders
+interface AnimationState {
+  visitedNodes: GridNode[];
+  shortestPath: GridNode[];
+  currentVisitedIndex: number;
+  currentPathIndex: number;
+  phase: "idle" | "visiting" | "path" | "done";
 }
 
 /**
@@ -43,6 +54,7 @@ export function usePathfinding(): UsePathfindingReturn {
   const [selectedAlgorithm, setSelectedAlgorithm] =
     useState<AlgorithmType>("astar");
   const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [startNode, setStartNode] = useState<{
     row: number;
     col: number;
@@ -55,15 +67,36 @@ export function usePathfinding(): UsePathfindingReturn {
   // Track what action we're doing when dragging
   const currentAction = useRef<"wall" | "erase" | null>(null);
 
-  // Animation timeout refs for cleanup
-  const animationTimeouts = useRef<NodeJS.Timeout[]>([]);
+  // Animation state ref
+  const animationState = useRef<AnimationState>({
+    visitedNodes: [],
+    shortestPath: [],
+    currentVisitedIndex: 0,
+    currentPathIndex: 0,
+    phase: "idle",
+  });
+
+  // Animation timeout ref for cleanup
+  const animationTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  // Pause state ref (for use in animation loop)
+  const isPausedRef = useRef(false);
 
   /**
    * Clear all pending animations
    */
   const clearAnimations = useCallback(() => {
-    animationTimeouts.current.forEach((timeout) => clearTimeout(timeout));
-    animationTimeouts.current = [];
+    if (animationTimeout.current) {
+      clearTimeout(animationTimeout.current);
+      animationTimeout.current = null;
+    }
+    animationState.current = {
+      visitedNodes: [],
+      shortestPath: [],
+      currentVisitedIndex: 0,
+      currentPathIndex: 0,
+      phase: "idle",
+    };
   }, []);
 
   /**
@@ -157,16 +190,19 @@ export function usePathfinding(): UsePathfindingReturn {
   };
 
   /**
-   * Animate the visited nodes
+   * Run one step of the animation
    */
-  const animateVisitedNodes = (
-    visitedNodes: GridNode[],
-    shortestPath: GridNode[],
-    onComplete: () => void
-  ) => {
-    for (let i = 0; i < visitedNodes.length; i++) {
-      const timeout = setTimeout(() => {
-        const node = visitedNodes[i];
+  const runAnimationStep = useCallback(() => {
+    const state = animationState.current;
+
+    // Check if paused
+    if (isPausedRef.current) {
+      return;
+    }
+
+    if (state.phase === "visiting") {
+      if (state.currentVisitedIndex < state.visitedNodes.length) {
+        const node = state.visitedNodes[state.currentVisitedIndex];
 
         // Don't overwrite start/end nodes
         if (node.state !== "start" && node.state !== "end") {
@@ -181,30 +217,22 @@ export function usePathfinding(): UsePathfindingReturn {
           });
         }
 
-        // After all visited nodes, animate the path
-        if (i === visitedNodes.length - 1) {
-          setTimeout(() => {
-            animateShortestPath(shortestPath, onComplete);
-          }, VISITED_ANIMATION_SPEED);
-        }
-      }, VISITED_ANIMATION_SPEED * i);
-
-      animationTimeouts.current.push(timeout);
-    }
-
-    // If no visited nodes, still call onComplete
-    if (visitedNodes.length === 0) {
-      onComplete();
-    }
-  };
-
-  /**
-   * Animate the shortest path
-   */
-  const animateShortestPath = (path: GridNode[], onComplete: () => void) => {
-    for (let i = 0; i < path.length; i++) {
-      const timeout = setTimeout(() => {
-        const node = path[i];
+        state.currentVisitedIndex++;
+        animationTimeout.current = setTimeout(
+          runAnimationStep,
+          VISITED_ANIMATION_SPEED
+        );
+      } else {
+        // Move to path phase
+        state.phase = "path";
+        animationTimeout.current = setTimeout(
+          runAnimationStep,
+          VISITED_ANIMATION_SPEED
+        );
+      }
+    } else if (state.phase === "path") {
+      if (state.currentPathIndex < state.shortestPath.length) {
+        const node = state.shortestPath[state.currentPathIndex];
 
         // Don't overwrite start/end nodes
         if (node.state !== "start" && node.state !== "end") {
@@ -219,19 +247,42 @@ export function usePathfinding(): UsePathfindingReturn {
           });
         }
 
-        if (i === path.length - 1) {
-          onComplete();
-        }
-      }, PATH_ANIMATION_SPEED * i);
-
-      animationTimeouts.current.push(timeout);
+        state.currentPathIndex++;
+        animationTimeout.current = setTimeout(
+          runAnimationStep,
+          PATH_ANIMATION_SPEED
+        );
+      } else {
+        // Animation complete
+        state.phase = "done";
+        setIsRunning(false);
+        setIsPaused(false);
+        isPausedRef.current = false;
+      }
     }
+  }, []);
 
-    // If no path, still call onComplete
-    if (path.length === 0) {
-      onComplete();
+  /**
+   * Toggle pause/resume
+   */
+  const togglePause = useCallback(() => {
+    if (!isRunning) return;
+
+    if (isPaused) {
+      // Resume
+      setIsPaused(false);
+      isPausedRef.current = false;
+      runAnimationStep();
+    } else {
+      // Pause
+      setIsPaused(true);
+      isPausedRef.current = true;
+      if (animationTimeout.current) {
+        clearTimeout(animationTimeout.current);
+        animationTimeout.current = null;
+      }
     }
-  };
+  }, [isRunning, isPaused, runAnimationStep]);
 
   /**
    * Run the visualization
@@ -240,6 +291,8 @@ export function usePathfinding(): UsePathfindingReturn {
     if (!startNode || !endNode || isRunning) return;
 
     setIsRunning(true);
+    setIsPaused(false);
+    isPausedRef.current = false;
     clearAnimations();
 
     // Reset visualization but keep walls
@@ -266,15 +319,27 @@ export function usePathfinding(): UsePathfindingReturn {
 
       const result = runAlgorithm(selectedAlgorithm, gridClone, start, end);
 
-      animateVisitedNodes(
-        result.visitedNodesInOrder,
-        result.shortestPath,
-        () => {
-          setIsRunning(false);
-        }
-      );
+      // Set up animation state
+      animationState.current = {
+        visitedNodes: result.visitedNodesInOrder,
+        shortestPath: result.shortestPath,
+        currentVisitedIndex: 0,
+        currentPathIndex: 0,
+        phase: "visiting",
+      };
+
+      // Start animation
+      runAnimationStep();
     }, 50);
-  }, [startNode, endNode, isRunning, grid, selectedAlgorithm, clearAnimations]);
+  }, [
+    startNode,
+    endNode,
+    isRunning,
+    grid,
+    selectedAlgorithm,
+    clearAnimations,
+    runAnimationStep,
+  ]);
 
   /**
    * Clear the entire grid
@@ -305,6 +370,7 @@ export function usePathfinding(): UsePathfindingReturn {
     grid,
     selectedAlgorithm,
     isRunning,
+    isPaused,
     startNode,
     endNode,
     setSelectedAlgorithm,
@@ -312,6 +378,7 @@ export function usePathfinding(): UsePathfindingReturn {
     handleMouseEnter,
     handleMouseUp,
     visualize,
+    togglePause,
     clearGrid,
     clearWalls,
   };
