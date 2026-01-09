@@ -1,0 +1,64 @@
+import {
+  AlgorithmInfo,
+  AlgorithmType,
+  Grid,
+  GridNode,
+  PathfindingResult,
+} from "@/types";
+import { bfs } from "./bfs";
+import { dfs } from "./dfs";
+import { dijkstra } from "./dijkstra";
+import { astar } from "./astar";
+
+/**
+ * Algorithm metadata for UI display
+ */
+export const ALGORITHMS: AlgorithmInfo[] = [
+  {
+    id: "bfs",
+    name: "Breadth-First Search",
+    description:
+      "Explores level by level. Guarantees shortest path in unweighted graphs.",
+  },
+  {
+    id: "dfs",
+    name: "Depth-First Search",
+    description:
+      "Explores as deep as possible first. Does NOT guarantee shortest path.",
+  },
+  {
+    id: "dijkstra",
+    name: "Dijkstra's Algorithm",
+    description: "Classic shortest path algorithm. Guarantees shortest path.",
+  },
+  {
+    id: "astar",
+    name: "A* Search",
+    description: "Uses Manhattan heuristic. Fastest for finding shortest path.",
+  },
+];
+
+/**
+ * Run the selected pathfinding algorithm
+ */
+export function runAlgorithm(
+  algorithm: AlgorithmType,
+  grid: Grid,
+  startNode: GridNode,
+  endNode: GridNode
+): PathfindingResult {
+  switch (algorithm) {
+    case "bfs":
+      return bfs(grid, startNode, endNode);
+    case "dfs":
+      return dfs(grid, startNode, endNode);
+    case "dijkstra":
+      return dijkstra(grid, startNode, endNode);
+    case "astar":
+      return astar(grid, startNode, endNode);
+    default:
+      throw new Error(`Unknown algorithm: ${algorithm}`);
+  }
+}
+
+export { bfs, dfs, dijkstra, astar };
