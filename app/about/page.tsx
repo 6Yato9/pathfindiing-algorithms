@@ -132,6 +132,39 @@ export default function AboutPage() {
                   path.
                 </p>
               </div>
+
+              <div className="border-l-4 border-orange-500 pl-4">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  Greedy Best-First Search
+                </h3>
+                <p className="text-slate-600 mt-1">
+                  Uses only the heuristic (estimated distance to goal) to make
+                  decisions. Very fast but does NOT guarantee the shortest path.
+                  Great for seeing how heuristics alone can guide search.
+                </p>
+              </div>
+
+              <div className="border-l-4 border-pink-500 pl-4">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  Bidirectional BFS
+                </h3>
+                <p className="text-slate-600 mt-1">
+                  Searches from both the start and end nodes simultaneously,
+                  meeting in the middle. Can be significantly faster for long
+                  paths as it reduces the search space exponentially.
+                </p>
+              </div>
+
+              <div className="border-l-4 border-yellow-500 pl-4">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  Swarm Algorithm
+                </h3>
+                <p className="text-slate-600 mt-1">
+                  A weighted hybrid of A* and Greedy Best-First that creates
+                  interesting swarm-like expansion patterns. Balances between
+                  exploration and exploitation for visually appealing results.
+                </p>
+              </div>
             </div>
           </section>
 

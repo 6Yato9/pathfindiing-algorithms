@@ -10,9 +10,9 @@ import {
 } from "@/lib/grid";
 import { runAlgorithm } from "@/lib/algorithms";
 
-// Grid dimensions - responsive based on common screen sizes
-const GRID_ROWS = 20;
-const GRID_COLS = 40;
+// Grid dimensions - larger grid for better visualization
+const GRID_ROWS = 25;
+const GRID_COLS = 50;
 
 // Animation speeds (in milliseconds)
 const VISITED_ANIMATION_SPEED = 15;

@@ -9,6 +9,9 @@ import { bfs } from "./bfs";
 import { dfs } from "./dfs";
 import { dijkstra } from "./dijkstra";
 import { astar } from "./astar";
+import { greedy } from "./greedy";
+import { bidirectional } from "./bidirectional";
+import { swarm } from "./swarm";
 
 /**
  * Algorithm metadata for UI display
@@ -36,6 +39,24 @@ export const ALGORITHMS: AlgorithmInfo[] = [
     name: "A* Search",
     description: "Uses Manhattan heuristic. Fastest for finding shortest path.",
   },
+  {
+    id: "greedy",
+    name: "Greedy Best-First",
+    description:
+      "Uses only heuristic. Very fast but does NOT guarantee shortest path.",
+  },
+  {
+    id: "bidirectional",
+    name: "Bidirectional BFS",
+    description:
+      "Searches from both ends simultaneously. Faster for long paths.",
+  },
+  {
+    id: "swarm",
+    name: "Swarm Algorithm",
+    description:
+      "Weighted A*/Greedy hybrid. Creates interesting swarm-like patterns.",
+  },
 ];
 
 /**
@@ -56,9 +77,15 @@ export function runAlgorithm(
       return dijkstra(grid, startNode, endNode);
     case "astar":
       return astar(grid, startNode, endNode);
+    case "greedy":
+      return greedy(grid, startNode, endNode);
+    case "bidirectional":
+      return bidirectional(grid, startNode, endNode);
+    case "swarm":
+      return swarm(grid, startNode, endNode);
     default:
       throw new Error(`Unknown algorithm: ${algorithm}`);
   }
 }
 
-export { bfs, dfs, dijkstra, astar };
+export { bfs, dfs, dijkstra, astar, greedy, bidirectional, swarm };

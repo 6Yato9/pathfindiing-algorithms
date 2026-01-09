@@ -33,7 +33,14 @@ export interface PathfindingResult {
 /**
  * Available pathfinding algorithms
  */
-export type AlgorithmType = "bfs" | "dfs" | "dijkstra" | "astar";
+export type AlgorithmType =
+  | "bfs"
+  | "dfs"
+  | "dijkstra"
+  | "astar"
+  | "greedy"
+  | "bidirectional"
+  | "swarm";
 
 /**
  * Algorithm metadata for UI display
