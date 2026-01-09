@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AlgorithmType } from "@/types";
 import { ALGORITHMS } from "@/lib/algorithms";
 
@@ -30,6 +31,8 @@ export function Header({
   isPaused,
   hasStartAndEnd,
 }: HeaderProps) {
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 py-3">
@@ -59,13 +62,31 @@ export function Header({
             <nav className="hidden sm:flex items-center gap-4">
               <Link
                 href="/"
-                className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === "/"
+                    ? "text-blue-600 font-bold underline underline-offset-4"
+                    : "text-slate-600 hover:text-blue-600"
+                }`}
               >
                 Visualizer
               </Link>
               <Link
+                href="/batch"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === "/batch"
+                    ? "text-blue-600 font-bold underline underline-offset-4"
+                    : "text-slate-600 hover:text-blue-600"
+                }`}
+              >
+                Batch Compare
+              </Link>
+              <Link
                 href="/about"
-                className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === "/about"
+                    ? "text-blue-600 font-bold underline underline-offset-4"
+                    : "text-slate-600 hover:text-blue-600"
+                }`}
               >
                 About
               </Link>

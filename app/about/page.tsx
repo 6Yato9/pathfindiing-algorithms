@@ -36,8 +36,14 @@ export default function AboutPage() {
                   Visualizer
                 </Link>
                 <Link
+                  href="/batch"
+                  className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
+                >
+                  Batch Compare
+                </Link>
+                <Link
                   href="/about"
-                  className="text-sm font-medium text-blue-600"
+                  className="text-sm font-medium text-blue-600 font-bold underline underline-offset-4"
                 >
                   About
                 </Link>
