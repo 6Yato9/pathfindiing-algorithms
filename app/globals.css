@@ -71,3 +71,8 @@ body {
   user-select: none;
   -webkit-user-select: none;
 }
+
+.yato {
+  user-select: none;
+  background-color: #facc15;
+}

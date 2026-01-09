@@ -1,7 +1,8 @@
 "use client";
 
-import { Grid, Controls, Legend } from "@/components";
+import { Grid, Legend, Header } from "@/components";
 import { usePathfinding } from "@/hooks/usePathfinding";
+import { ALGORITHMS } from "@/lib/algorithms";
 
 /**
  * Main pathfinding visualizer component
@@ -24,31 +25,42 @@ export function PathfindingVisualizer() {
   } = usePathfinding();
 
   const hasStartAndEnd = startNode !== null && endNode !== null;
+  const selectedAlgorithmInfo = ALGORITHMS.find(
+    (a) => a.id === selectedAlgorithm
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
-      <div className="max-w-7xl mx-auto flex flex-col items-center gap-8">
-        {/* Header */}
-        <header className="text-center">
-          <h1 className="text-4xl font-bold text-slate-800 mb-2">
-            Pathfinding Visualizer
-          </h1>
-          <p className="text-slate-600 max-w-xl">
-            Explore how different pathfinding algorithms find the shortest path.
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+      {/* Header with controls */}
+      <Header
+        selectedAlgorithm={selectedAlgorithm}
+        onAlgorithmChange={setSelectedAlgorithm}
+        onVisualize={visualize}
+        onClearGrid={clearGrid}
+        onClearWalls={clearWalls}
+        isRunning={isRunning}
+        hasStartAndEnd={hasStartAndEnd}
+      />
+
+      {/* Main content */}
+      <main className="flex-1 flex flex-col items-center gap-6 py-6 px-4">
+        {/* Instructions & Algorithm Info */}
+        <div className="text-center max-w-2xl">
+          <p className="text-slate-600 mb-2">
             Click to place start and end nodes, then drag to draw walls.
           </p>
-        </header>
-
-        {/* Controls */}
-        <Controls
-          selectedAlgorithm={selectedAlgorithm}
-          onAlgorithmChange={setSelectedAlgorithm}
-          onVisualize={visualize}
-          onClearGrid={clearGrid}
-          onClearWalls={clearWalls}
-          isRunning={isRunning}
-          hasStartAndEnd={hasStartAndEnd}
-        />
+          {selectedAlgorithmInfo && (
+            <p className="text-sm text-slate-500 italic">
+              <span className="font-medium">{selectedAlgorithmInfo.name}:</span>{" "}
+              {selectedAlgorithmInfo.description}
+            </p>
+          )}
+          {!hasStartAndEnd && (
+            <p className="text-sm text-amber-600 font-medium mt-2">
+              Click on the grid to place start (green) and end (red) nodes
+            </p>
+          )}
+        </div>
 
         {/* Legend */}
         <Legend />
@@ -65,12 +77,12 @@ export function PathfindingVisualizer() {
             onMouseUp={handleMouseUp}
           />
         </div>
+      </main>
 
-        {/* Footer */}
-        <footer className="text-center text-sm text-slate-500">
-          <p>Built with Next.js, TypeScript, and Tailwind CSS</p>
-        </footer>
-      </div>
+      {/* Footer */}
+      <footer className="text-center text-sm text-slate-500 py-4 border-t border-slate-200">
+        <p>Built by Abdellah Anca with Next.js, TypeScript, and Tailwind CSS</p>
+      </footer>
     </div>
   );
 }
