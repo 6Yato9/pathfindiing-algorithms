@@ -9,7 +9,7 @@ import { bfs } from "./bfs";
 import { dfs } from "./dfs";
 import { dijkstra } from "./dijkstra";
 import { astar } from "./astar";
-import { greedy } from "./greedy";
+import { wallFollower } from "./wallfollower";
 import { bidirectional } from "./bidirectional";
 import { swarm } from "./swarm";
 import { thetaStar } from "./thetastar";
@@ -45,10 +45,9 @@ export const ALGORITHMS: AlgorithmInfo[] = [
     description: "Uses Manhattan heuristic. Fastest for finding shortest path.",
   },
   {
-    id: "greedy",
-    name: "Greedy Best-First",
-    description:
-      "Uses only heuristic. Very fast but does NOT guarantee shortest path.",
+    id: "wallfollower",
+    name: "Wall Follower",
+    description: "Right-hand rule maze solver. Follows walls to find a path.",
   },
   {
     id: "bidirectional",
@@ -110,8 +109,8 @@ export function runAlgorithm(
       return dijkstra(grid, startNode, endNode);
     case "astar":
       return astar(grid, startNode, endNode);
-    case "greedy":
-      return greedy(grid, startNode, endNode);
+    case "wallfollower":
+      return wallFollower(grid, startNode, endNode);
     case "bidirectional":
       return bidirectional(grid, startNode, endNode);
     case "swarm":
@@ -136,7 +135,7 @@ export {
   dfs,
   dijkstra,
   astar,
-  greedy,
+  wallFollower,
   bidirectional,
   swarm,
   thetaStar,

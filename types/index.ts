@@ -38,7 +38,7 @@ export type AlgorithmType =
   | "dfs"
   | "dijkstra"
   | "astar"
-  | "greedy"
+  | "wallfollower"
   | "bidirectional"
   | "swarm"
   | "thetastar"

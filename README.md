@@ -10,7 +10,7 @@ An interactive web application for visualizing pathfinding algorithms. Watch how
   - Depth-First Search (DFS)
   - Dijkstra's Algorithm
   - A\* Search
-  - Greedy Best-First Search
+  - Wall Follower
   - Bidirectional BFS
   - Swarm Algorithm
   - Theta\*

@@ -141,12 +141,12 @@ export default function AboutPage() {
 
               <div className="border-l-4 border-orange-500 pl-4">
                 <h3 className="text-lg font-semibold text-slate-800">
-                  Greedy Best-First Search
+                  Wall Follower
                 </h3>
                 <p className="text-slate-600 mt-1">
-                  Uses only the heuristic (estimated distance to goal) to make
-                  decisions. Very fast but does NOT guarantee the shortest path.
-                  Great for seeing how heuristics alone can guide search.
+                  A classic maze-solving algorithm using the right-hand rule.
+                  Keeps one hand on the wall and follows it until reaching the
+                  goal. Works well for simply-connected mazes.
                 </p>
               </div>
 
