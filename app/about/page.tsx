@@ -171,6 +171,37 @@ export default function AboutPage() {
                   exploration and exploitation for visually appealing results.
                 </p>
               </div>
+
+              <div className="border-l-4 border-indigo-500 pl-4">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  Jump Point Search (JPS)
+                </h3>
+                <p className="text-slate-600 mt-1">
+                  An optimization of A* for uniform-cost grids that dramatically
+                  reduces the number of nodes explored by &quot;jumping&quot;
+                  over intermediate nodes. Very fast on open grids.
+                </p>
+              </div>
+
+              <div className="border-l-4 border-teal-500 pl-4">
+                <h3 className="text-lg font-semibold text-slate-800">Theta*</h3>
+                <p className="text-slate-600 mt-1">
+                  An any-angle pathfinding algorithm that produces shorter, more
+                  realistic paths by allowing movement in any direction, not
+                  just along grid edges. Uses line-of-sight checks.
+                </p>
+              </div>
+
+              <div className="border-l-4 border-red-500 pl-4">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  Bellman-Ford
+                </h3>
+                <p className="text-slate-600 mt-1">
+                  A versatile shortest path algorithm that can handle negative
+                  edge weights (unlike Dijkstra). Slower but useful for graphs
+                  with varying edge costs.
+                </p>
+              </div>
             </div>
           </section>
 

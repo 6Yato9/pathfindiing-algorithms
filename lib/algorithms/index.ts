@@ -12,6 +12,11 @@ import { astar } from "./astar";
 import { greedy } from "./greedy";
 import { bidirectional } from "./bidirectional";
 import { swarm } from "./swarm";
+import { thetaStar } from "./thetastar";
+import { bellmanFord } from "./bellmanford";
+import { idaStar } from "./idastar";
+import { bestFirst } from "./bestfirst";
+import { floodFill } from "./floodfill";
 
 /**
  * Algorithm metadata for UI display
@@ -57,6 +62,34 @@ export const ALGORITHMS: AlgorithmInfo[] = [
     description:
       "Weighted A*/Greedy hybrid. Creates interesting swarm-like patterns.",
   },
+  {
+    id: "thetastar",
+    name: "Theta*",
+    description:
+      "Any-angle pathfinding. Produces shorter, more realistic paths.",
+  },
+  {
+    id: "bellmanford",
+    name: "Bellman-Ford",
+    description:
+      "Handles negative weights. Slower but more versatile than Dijkstra.",
+  },
+  {
+    id: "idastar",
+    name: "IDA* (Iterative Deepening)",
+    description: "Combines depth-first space efficiency with A* optimality.",
+  },
+  {
+    id: "bestfirst",
+    name: "Best-First Search",
+    description: "Pure heuristic search. Expands most promising nodes first.",
+  },
+  {
+    id: "floodfill",
+    name: "Flood Fill",
+    description:
+      "Wavefront expansion. Floods outward like water filling a container.",
+  },
 ];
 
 /**
@@ -83,9 +116,26 @@ export function runAlgorithm(
       return bidirectional(grid, startNode, endNode);
     case "swarm":
       return swarm(grid, startNode, endNode);
+    case "jps":
+      return jps(grid, startNode, endNode);
+    case "thetastar":
+      return thetaStar(grid, startNode, endNode);
+    case "bellmanford":
+      return bellmanFord(grid, startNode, endNode);
     default:
       throw new Error(`Unknown algorithm: ${algorithm}`);
   }
 }
 
-export { bfs, dfs, dijkstra, astar, greedy, bidirectional, swarm };
+export {
+  bfs,
+  dfs,
+  dijkstra,
+  astar,
+  greedy,
+  bidirectional,
+  swarm,
+  jps,
+  thetaStar,
+  bellmanFord,
+};

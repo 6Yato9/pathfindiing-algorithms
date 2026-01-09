@@ -4,7 +4,7 @@ An interactive web application for visualizing pathfinding algorithms. Watch how
 
 ## Features
 
-- **7 Pathfinding Algorithms**
+- **10 Pathfinding Algorithms**
 
   - Breadth-First Search (BFS)
   - Depth-First Search (DFS)
@@ -13,6 +13,9 @@ An interactive web application for visualizing pathfinding algorithms. Watch how
   - Greedy Best-First Search
   - Bidirectional BFS
   - Swarm Algorithm
+  - Jump Point Search (JPS)
+  - Theta\*
+  - Bellman-Ford
 
 - **Interactive Grid**
 

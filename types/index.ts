@@ -40,7 +40,12 @@ export type AlgorithmType =
   | "astar"
   | "greedy"
   | "bidirectional"
-  | "swarm";
+  | "swarm"
+  | "thetastar"
+  | "bellmanford"
+  | "idastar"
+  | "bestfirst"
+  | "floodfill";
 
 /**
  * Algorithm metadata for UI display
